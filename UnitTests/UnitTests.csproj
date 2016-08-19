@@ -55,9 +55,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DelimitedStringParser\DelimitedStringParser.csproj">
+    <ProjectReference Include="..\Source\Source.csproj">
       <Project>{EA3CC584-B880-4EC2-972A-A91CD5C47E87}</Project>
-      <Name>DelimitedStringParser</Name>
+      <Name>Source</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

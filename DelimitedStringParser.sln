@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DelimitedStringParser", "DelimitedStringParser\DelimitedStringParser.csproj", "{EA3CC584-B880-4EC2-972A-A91CD5C47E87}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Source", "Source\Source.csproj", "{EA3CC584-B880-4EC2-972A-A91CD5C47E87}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DelimitedStringParserTests", "DelimitedStringParserTests\DelimitedStringParserTests.csproj", "{32F0244D-421F-419A-B305-28F54446F857}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{32F0244D-421F-419A-B305-28F54446F857}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
