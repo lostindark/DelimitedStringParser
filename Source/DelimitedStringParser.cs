@@ -16,7 +16,18 @@ namespace DelimitedStringParser
         /// </summary>
         static DelimitedStringParser()
         {
-            
+
+        }
+
+        /// <summary>
+        /// Parse the string as object.
+        /// It will return null if the input string is null, and will return default new instance of T if the input string is empty.
+        /// </summary>
+        /// <param name="str">Input string.</param>
+        /// <returns>The object</returns>
+        public static T Parse(string str)
+        {
+            throw new NotImplementedException();
         }
     }
 }

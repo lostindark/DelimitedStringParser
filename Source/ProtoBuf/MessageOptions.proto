@@ -1,0 +1,11 @@
+﻿syntax = "proto3";
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.MessageOptions {
+  string delimiter = 1000;
+}
+
+message MyMessage {
+  option (delimiter) = ";";
+}

@@ -1,0 +1,65 @@
+namespace DelimitedStringParser.Tests
+
+enum TestEnum
+{
+    Value0 = 0,
+    Value1 = 1,
+    Value2 = 2,
+}
+
+[Delimiter(";")]
+struct TestStruct1
+{
+    0: bool Field0;
+    1: int8 Field1;
+    2: int16 Field2;
+    3: int32 Field3;
+    4: int64 Field4;
+    5: uint8 Field5;
+    6: uint16 Field6;
+    7: uint32 Field7;
+    8: uint64 Field8;
+    9: string Field9;
+    10: TestEnum Field10 = Value0;
+}
+
+[Delimiter(";")]
+struct TestStruct2
+{
+    0: nullable<bool> Field0;
+    1: nullable<TestEnum> Field1 = nothing;
+    [Delimiter(":")]
+    2: vector<int32> Field2;
+    [Delimiter(":")]
+    3: vector<TestEnum> Field3;
+    [Delimiter(":")]
+    4: list<int32> Field4;
+    [Delimiter(":")]
+    5: set<int32> Field5;
+}
+
+[Delimiter("#")]
+struct TestStruct3
+{
+    0: int32 Field0;
+    1: string Field1;
+}
+
+[Delimiter(";")]
+struct TestStruct4
+{
+    0: int32 Field0;
+    1: TestStruct3 Field1;
+    [Delimiter(":")]
+    2: vector<TestStruct3> Field2;
+}
+
+[Format("CompositeDatapoint")]
+struct TestStruct5
+{
+    0: int32 Field0;
+    [FieldId("v1=1")]
+    1: string Field1;
+    [FieldId("v1=2;v2=1")]
+    2: bool Field2;
+}
