@@ -54,7 +54,7 @@ struct TestStruct4
     2: vector<TestStruct3> Field2;
 }
 
-[Format("CompositeDatapoint")]
+[Format("versioned")]
 struct TestStruct5
 {
     0: int32 Field0;
