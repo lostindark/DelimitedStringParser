@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 
 namespace DelimitedStringParser
 {
@@ -15,7 +13,7 @@ namespace DelimitedStringParser
         private static readonly bool isVersionedData = false;
         private static readonly string delimiter;
 
-        private static readonly List<FieldData> fieldDataList;
+        private static readonly List<FieldData> fieldList;
 
         /// <summary>
         /// Static constructor.
@@ -26,6 +24,16 @@ namespace DelimitedStringParser
             TClassMetadataReader classMetadataReader = new TClassMetadataReader();
             isVersionedData = classMetadataReader.IsVersionedData;
             delimiter = classMetadataReader.Delimiter;
+
+            fieldList = new List<FieldData>();
+            foreach (var fieldMetadata in classMetadataReader.FieldList)
+            {
+                fieldList.Add(new FieldData()
+                {
+                    Metadata = fieldMetadata,
+                    Parser = GenerateFieldPaser(fieldMetadata)
+                });
+            }
         }
 
         /// <summary>
@@ -55,11 +63,11 @@ namespace DelimitedStringParser
                     currentVersion = int.Parse(resultArray[0], NumberStyles.Integer, CultureInfo.InvariantCulture);
                 }
 
-                foreach (var field in fieldDataList)
+                foreach (var field in fieldList)
                 {
-                    // Get field index in the delimited string. For composite datapoint, we need to pass in the version.
+                    // Get field index in the delimited string.
                     //
-                    int? fieldLookupIndex = field.GetLookupIndex(isVersionedData, currentVersion);
+                    int? fieldLookupIndex = GetLookupIndex(field.Metadata, isVersionedData, currentVersion);
 
                     if (fieldLookupIndex != null)
                     {
@@ -88,56 +96,206 @@ namespace DelimitedStringParser
         }
 
         /// <summary>
-        /// Represent the field data of the target object.
-        /// It builds the index lookup table and the parser for the field.
+        /// Generate a delegate to parse string to the type of the field and set it.
         /// </summary>
-        private class FieldData
+        private static Action<T, string> GenerateFieldPaser(FieldMetadata fieldMetadata)
         {
-            private int lookupIndex = -1;
-            private Dictionary<int, int> lookupIndexTable = null;
+            PropertyInfo propInfo = fieldMetadata.PropInfo;
+            Type underlyingType = fieldMetadata.UnderlyingType;
 
-            public Action<T, string> Parser { get; private set; }
+            // The input string parameter. This is used to pass in the string representation of the field.
+            //
+            var strParameter = Expression.Parameter(typeof(string), "str");
 
-            public FieldData()
+            Expression parsingExpression = null;
+            Type nullableUnderlyingType = null;
+
+            if (fieldMetadata.IsCollection)
             {
-            }
+                bool removeEmptyEntries = true;
+                Delegate convertDelegate = null;
+                Type collectionUnderlyingType = fieldMetadata.CollectionUnderlyingType;
 
-            /// <summary>
-            /// Get lookup index for the field.
-            /// </summary>
-            /// <param name="version">Version of the versioned data.</param>
-            /// <returns>The index of the field.</returns>
-            public int? GetLookupIndex(bool isVersionedData, int version)
-            {
-                int? index = null;
-
-                if (isVersionedData
-                    && this.lookupIndexTable != null)
+                // Create a delegate to convert the string to the underlying type of the collection.
+                // The delegate will be used by ConvertToIEnumerable method.
+                //
+                if (fieldMetadata.IsParsableObject)
                 {
-                    // If it is versioned data, and the index lookup table is not empty,
-                    // We need to use the lookup table to find field index. Don't fall back to lookupIndex member.
+                    // Create the delegate to convert string to Bond object (using Parse method).
                     //
-                    int tempIndex = -1;
-                    if (this.lookupIndexTable.TryGetValue(version, out tempIndex))
-                    {
-                        index = tempIndex;
-                    }
+                    convertDelegate = Delegate.CreateDelegate(
+                        Expression.GetFuncType(typeof(string), collectionUnderlyingType),
+                        GetParseMethodForParsableObject(collectionUnderlyingType));
+                    removeEmptyEntries = false;
+                }
+                else if (collectionUnderlyingType.IsPrimitive
+                    || collectionUnderlyingType == typeof(string))
+                {
+                    convertDelegate = Delegate.CreateDelegate(
+                        Expression.GetFuncType(typeof(string), collectionUnderlyingType),
+                        TypeConverter.GetConvertMethod(collectionUnderlyingType));
+                }
+                else if (collectionUnderlyingType.IsEnum)
+                {
+                    Type enumUnderlyingType = Enum.GetUnderlyingType(collectionUnderlyingType);
+
+                    // Create the delegate to convert string Enum underlying type, and then to Enum.
+                    //
+                    convertDelegate = Expression.Lambda(
+                        Expression.Convert(
+                            Expression.Call(null, TypeConverter.GetConvertMethod(enumUnderlyingType), strParameter),
+                            collectionUnderlyingType),
+                        strParameter).Compile();
                 }
                 else
                 {
-                    index = this.lookupIndex;
+                    throw new NotSupportedException(GetFieldTypeNotSupportedMessage(fieldMetadata.Info));
                 }
 
-                // Versioned data always has version as the first field, the actual index for other fields is off by 1.
+                // Find the constructor which takes IEnumerable<T>.
                 //
-                if (isVersionedData && index != null)
+                var constructor = propInfo.PropertyType.GetConstructor(
+                    new Type[] { typeof(IEnumerable<>).MakeGenericType(new Type[] { collectionUnderlyingType }) });
+
+                if (constructor == null)
                 {
-                    index++;
+                    throw new NotSupportedException(GetFieldTypeNotSupportedMessage(fieldMetadata.Info));
                 }
 
-                return index;
+                // Use the ConvertToEnumerable method to convert the string into IEnumerable<T>, and then use the constructor to generate the property.
+                //
+                parsingExpression = Expression.New(
+                    constructor,
+                    Expression.Call(
+                        TypeConverter.GetConvertToIEnumerableMethod(collectionUnderlyingType),
+                        strParameter,
+                        Expression.Constant(fieldMetadata.CollectionDelimiter),
+                        Expression.Constant(removeEmptyEntries),
+                        Expression.Constant(convertDelegate)));
             }
+            else if (underlyingType.IsPrimitive
+                || underlyingType == typeof(string))
+            {
+                // For simple types, we just need to use the convert method to convert the string into its type.
+                // TODO: to improve performance further, skip the convert method call for string type.
+                //
+                parsingExpression = Expression.Call(null, TypeConverter.GetConvertMethod(underlyingType), strParameter);
+            }
+            else if (underlyingType.IsEnum)
+            {
+                // For enum, we need to get the underlying type so we can use propery convert method.
+                //
+                Type enumUnderlyingType = Enum.GetUnderlyingType(underlyingType);
+
+                // We need to use Expression.Convert to convert the result back to Enum type.
+                //
+                parsingExpression = Expression.Convert(
+                    Expression.Call(null, TypeConverter.GetConvertMethod(enumUnderlyingType), strParameter),
+                    underlyingType);
+            }
+            else if ((nullableUnderlyingType = Nullable.GetUnderlyingType(underlyingType)) != null)
+            {
+                // Handle nullable fields of the following types:
+                // 1. Primitive types (bool, int etc)
+                // 2. Enum
+                //
+                underlyingType = nullableUnderlyingType;
+
+                if (underlyingType.IsEnum)
+                {
+                    // For enum, we need to get the underlying type so we can use propery convert method.
+                    //
+                    underlyingType = Enum.GetUnderlyingType(underlyingType);
+                }
+
+                if (!underlyingType.IsPrimitive)
+                {
+                    throw new NotSupportedException(GetFieldTypeNotSupportedMessage(fieldMetadata.Info));
+                }
+
+                // We need to use Expression.Convert to convert the result back to nullable type.
+                //
+                parsingExpression = Expression.Convert(
+                    Expression.Call(null, TypeConverter.GetConvertMethod(underlyingType), strParameter),
+                    underlyingType);
+            }
+            else if (fieldMetadata.IsParsableObject)
+            {
+                // Handle support object fields by creating a new parser.
+                //
+                parsingExpression = Expression.Call(GetParseMethodForParsableObject(underlyingType), strParameter);
+            }
+            else
+            {
+                throw new NotSupportedException(GetFieldTypeNotSupportedMessage(fieldMetadata.Info));
+            }
+
+            var propertyParameter = Expression.Parameter(propInfo.DeclaringType, propInfo.Name);
+            var assignExpression = Expression.MakeMemberAccess(propertyParameter, propInfo);
+
+            // Generate the lambda to parse the string and assign the property.
+            //
+            return Expression.Lambda<Action<T, string>>(
+                Expression.Assign(assignExpression, parsingExpression),
+                propertyParameter,
+                strParameter).Compile();
         }
 
+        private static MethodInfo GetParseMethodForParsableObject(Type objectType)
+        {
+            return typeof(DelimitedStringParser<,>).MakeGenericType(new Type[] { objectType, typeof(TClassMetadataReader) }).GetMethod("Parse");
+        }
+
+        private static string GetFieldTypeNotSupportedMessage(string fieldInfo)
+        {
+            return string.Format(
+                "Field type of {0} is not supported in this parser.",
+                fieldInfo);
+        }
+
+        /// <summary>
+        /// Get lookup index for the field.
+        /// </summary>
+        /// <param name="fieldMetadata">The field metadata.</param>
+        /// <param name="isVersionedData">Whether the data is versioned.</param>
+        /// <param name="version">Version of the versioned data.</param>
+        /// <returns>The index of the field.</returns>
+        private static int? GetLookupIndex(FieldMetadata fieldMetadata, bool isVersionedData, int version)
+        {
+            int? index = null;
+
+            if (isVersionedData
+                && fieldMetadata.LookupIndexTable != null)
+            {
+                // If it is versioned data, and the index lookup table is not empty,
+                // we need to use the lookup table to find field index.
+                //
+                int tempIndex = -1;
+                if (fieldMetadata.LookupIndexTable.TryGetValue(version, out tempIndex))
+                {
+                    index = tempIndex;
+                }
+            }
+            else
+            {
+                index = fieldMetadata.LookupIndex;
+            }
+
+            // Versioned data always has the version as the first field, the actual index for other fields are off by 1.
+            //
+            if (isVersionedData && index != null)
+            {
+                index++;
+            }
+
+            return index;
+        }
+
+        private class FieldData
+        {
+            public FieldMetadata Metadata { get; set; }
+
+            public Action<T, string> Parser { get; set; }
+        }
     }
 }

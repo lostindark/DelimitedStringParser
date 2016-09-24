@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace DelimitedStringParser
 {
@@ -10,6 +6,8 @@ namespace DelimitedStringParser
     {
         bool IsVersionedData { get; }
 
-        string Delimiter { get; }      
+        string Delimiter { get; } 
+        
+        IEnumerable<FieldMetadata> FieldList { get; }
     }
 }

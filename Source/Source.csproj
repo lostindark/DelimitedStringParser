@@ -71,6 +71,7 @@
   <ItemGroup>
     <Compile Include="DelimitedStringParser.cs" />
     <Compile Include="DelimiterAttribute.cs" />
+    <Compile Include="FieldMetadata.cs" />
     <Compile Include="IClassMetadataReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProtoBuf\MessageOptions.cs" />
