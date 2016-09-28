@@ -11,13 +11,7 @@ namespace DelimitedStringParser
     {
         public string Info;
 
-        public int LookupIndex;
-
-        public Dictionary<int, int> LookupIndexTable;
-
         public PropertyInfo PropInfo;
-
-        public Type UnderlyingType;
 
         public bool IsParsableObject;
 
@@ -26,5 +20,9 @@ namespace DelimitedStringParser
         public string CollectionDelimiter;
 
         public Type CollectionUnderlyingType;
+
+        public int LookupIndex;
+
+        public Dictionary<int, int> LookupIndexTable;
     }
 }

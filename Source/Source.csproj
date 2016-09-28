@@ -69,6 +69,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bond\BondDelimitedStringParser.cs" />
+    <Compile Include="Bond\BondMetadataReader.cs" />
     <Compile Include="DelimitedStringParser.cs" />
     <Compile Include="DelimiterAttribute.cs" />
     <Compile Include="FieldMetadata.cs" />
@@ -77,9 +79,7 @@
     <Compile Include="ProtoBuf\MessageOptions.cs" />
     <Compile Include="TypeConverter.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Bond\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />

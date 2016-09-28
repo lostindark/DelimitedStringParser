@@ -101,7 +101,7 @@ namespace DelimitedStringParser
         private static Action<T, string> GenerateFieldPaser(FieldMetadata fieldMetadata)
         {
             PropertyInfo propInfo = fieldMetadata.PropInfo;
-            Type underlyingType = fieldMetadata.UnderlyingType;
+            Type underlyingType = propInfo.PropertyType;
 
             // The input string parameter. This is used to pass in the string representation of the field.
             //
