@@ -144,8 +144,8 @@ namespace DelimitedStringParser.Bond
 
         private static int GetBondId(IdAttribute idAttr)
         {
-            PropertyInfo valuePropery = typeof(IdAttribute).GetProperty("Value", BindingFlags.NonPublic);
-            return (int)valuePropery.GetValue(idAttr, BindingFlags.GetProperty | BindingFlags.NonPublic, null, null, null);
+            PropertyInfo valuePropery = typeof(IdAttribute).GetProperty("Value", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (ushort)valuePropery.GetValue(idAttr, BindingFlags.GetProperty | BindingFlags.NonPublic, null, null, null);
         }
     }
 }
