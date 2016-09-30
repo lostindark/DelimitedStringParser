@@ -13,11 +13,11 @@ namespace DelimitedStringParser
 
         public PropertyInfo PropInfo;
 
-        public bool IsParsableObject;
-
         public bool IsCollection;
 
         public string CollectionDelimiter;
+
+        public bool IsParsableObject;
 
         public Type CollectionUnderlyingType;
 

@@ -25,6 +25,11 @@ namespace DelimitedStringParser
             isVersionedData = classMetadataReader.IsVersionedData;
             delimiter = classMetadataReader.Delimiter;
 
+            if (string.IsNullOrEmpty(delimiter))
+            {
+                throw new ArgumentException("The delimiter parameter cannot be null or empty.", nameof(delimiter));
+            }
+
             fieldList = new List<FieldData>();
             foreach (var fieldMetadata in classMetadataReader.FieldList)
             {
@@ -167,7 +172,7 @@ namespace DelimitedStringParser
                 parsingExpression = Expression.New(
                     constructor,
                     Expression.Call(
-                        TypeConverter.GetConvertToIEnumerableMethod(collectionUnderlyingType),
+                        TypeConverter.GetConvertToIEnumerableMethod(propInfo.PropertyType),
                         strParameter,
                         Expression.Constant(fieldMetadata.CollectionDelimiter),
                         Expression.Constant(removeEmptyEntries),
@@ -217,13 +222,13 @@ namespace DelimitedStringParser
                 //
                 parsingExpression = Expression.Convert(
                     Expression.Call(null, TypeConverter.GetConvertMethod(underlyingType), strParameter),
-                    underlyingType);
+                    propInfo.PropertyType);
             }
             else if (fieldMetadata.IsParsableObject)
             {
                 // Handle support object fields by creating a new parser.
                 //
-                parsingExpression = Expression.Call(GetParseMethodForParsableObject(underlyingType), strParameter);
+                parsingExpression = Expression.Call(GetParseMethodForParsableObject(propInfo.PropertyType), strParameter);
             }
             else
             {
@@ -243,7 +248,8 @@ namespace DelimitedStringParser
 
         private static MethodInfo GetParseMethodForParsableObject(Type objectType)
         {
-            return typeof(DelimitedStringParser<,>).MakeGenericType(new Type[] { objectType, typeof(TClassMetadataReader) }).GetMethod("Parse");
+            Type classMetadataReaderType = typeof(TClassMetadataReader).GetGenericTypeDefinition().MakeGenericType(new Type[] { objectType });
+            return typeof(DelimitedStringParser<,>).MakeGenericType(new Type[] { objectType, classMetadataReaderType }).GetMethod("Parse");
         }
 
         private static string GetFieldTypeNotSupportedMessage(string fieldInfo)

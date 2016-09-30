@@ -54,7 +54,8 @@ struct TestStruct4
     2: vector<TestStruct3> Field2;
 }
 
-[Format("versioned")]
+[IsVersionedData("true")]
+[Delimiter("|")]
 struct TestStruct5
 {
     0: int32 Field0;

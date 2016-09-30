@@ -49,10 +49,10 @@ namespace DelimitedStringParser.Bond
                 {
                     int lookupIndex;
                     Dictionary<int, int> lookupIndexTable;
+                    bool isParsableObject = false;
                     Type collectionUnderlyingType = null;
                     string collectionDelimiter = null;
 
-                    bool isParsableObject = property.PropertyType.GetCustomAttributes<SchemaAttribute>().Any();
                     bool isCollection = property.PropertyType.IsGenericType
                         && property.PropertyType.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ICollection<>));
 
@@ -66,6 +66,11 @@ namespace DelimitedStringParser.Bond
                             .First();
 
                         collectionUnderlyingType = property.PropertyType.GetGenericArguments()[0];
+                        isParsableObject = collectionUnderlyingType.GetCustomAttributes<SchemaAttribute>().Any();
+                    }
+                    else
+                    {
+                        isParsableObject = property.PropertyType.GetCustomAttributes<SchemaAttribute>().Any();
                     }
 
                     ParseFieldIndex(property, this.IsVersionedData, out lookupIndex, out lookupIndexTable);

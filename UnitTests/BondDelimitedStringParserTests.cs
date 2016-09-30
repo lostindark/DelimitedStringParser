@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Bond;
 using DelimitedStringParser.Bond;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -20,7 +21,7 @@ namespace DelimitedStringParser.Tests
         public void ParserTestEmptyValue()
         {
             var testStruct1 = BondDelimitedStringParser<TestStruct1>.Parse("");
-            Assert.AreEqual(new TestStruct1(), testStruct1);
+            Assert.IsTrue(Comparer.Equal(new TestStruct1(), testStruct1));
         }
 
         [TestMethod()]
@@ -29,7 +30,7 @@ namespace DelimitedStringParser.Tests
             var expected = new TestStruct1();
             var actual = BondDelimitedStringParser<TestStruct1>.Parse(";;;;;;;;;;");
 
-            Assert.IsTrue(expected.Equals(actual));
+            Assert.IsTrue(Comparer.Equal(expected, actual));
         }
 
         /// <summary>
@@ -69,7 +70,7 @@ namespace DelimitedStringParser.Tests
 
             var actual = BondDelimitedStringParser<TestStruct1>.Parse(str);
 
-            Assert.IsTrue(expected.Equals(actual));
+            Assert.IsTrue(Comparer.Equal(expected, actual));
         }
 
         /// <summary>
@@ -99,7 +100,7 @@ namespace DelimitedStringParser.Tests
 
             var actual = BondDelimitedStringParser<TestStruct2>.Parse(str);
 
-            Assert.IsTrue(expected.Equals(actual));
+            Assert.IsTrue(Comparer.Equal(expected, actual));
         }
 
         /// <summary>
@@ -139,7 +140,7 @@ namespace DelimitedStringParser.Tests
 
             var actual = BondDelimitedStringParser<TestStruct4>.Parse(str);
 
-            Assert.IsTrue(expected.Equals(actual));
+            Assert.IsTrue(Comparer.Equal(expected, actual));
         }
 
         /// <summary>
@@ -157,7 +158,7 @@ namespace DelimitedStringParser.Tests
 
             var actual = BondDelimitedStringParser<TestStruct5>.Parse("1|2|abc|1");
 
-            Assert.IsTrue(expected.Equals(actual));
+            Assert.IsTrue(Comparer.Equal(expected, actual));
         }
 
         /// <summary>
@@ -174,7 +175,7 @@ namespace DelimitedStringParser.Tests
 
             var actual = BondDelimitedStringParser<TestStruct5>.Parse("2|2|0");
 
-            Assert.IsTrue(expected.Equals(actual));
+            Assert.IsTrue(Comparer.Equal(expected, actual));
         }
     }
 }
