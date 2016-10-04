@@ -69,10 +69,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PlainObjectDelimitedStringParser.cs" />
+    <Compile Include="PlainObjectMetadataReader.cs" />
     <Compile Include="Bond\BondDelimitedStringParser.cs" />
     <Compile Include="Bond\BondMetadataReader.cs" />
     <Compile Include="DelimitedStringParser.cs" />
+    <Compile Include="IsVersionedDataAttribute.cs" />
     <Compile Include="DelimiterAttribute.cs" />
+    <Compile Include="FieldIdAttribute.cs" />
     <Compile Include="FieldMetadata.cs" />
     <Compile Include="IClassMetadataReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

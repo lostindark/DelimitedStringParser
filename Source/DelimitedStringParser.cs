@@ -6,6 +6,25 @@ using System.Reflection;
 
 namespace DelimitedStringParser
 {
+    /// <summary>
+    /// A parser to parse delimited string into an object. It supports versioned or non-versioned format.
+    /// </summary>
+    /// <typeparam name="T">The target object type.</typeparam>
+    /// <typeparam name="TClassMetadataReader">A class metadata reader that understand how to map the delimited string into the target class.</typeparam>
+    /// <remarks>
+    /// This parser supports all simple types, nullable, and list/set. Map is not supported yet.
+    /// It requires custom attributes on the class definition.
+    /// <para>
+    /// For class, there are 2 attributes:
+    /// 1. IsVersionedData. Default to false.
+    /// 2. Delimiter. Specific what is used to seperate the fields in the string.
+    /// </para>
+    /// <para>
+    /// For fields/properties, there are 2 attributes:
+    /// 1. FieldId. Specific the field index in the string. The value can be a number, or a complex format to specify different field id for different version.
+    /// 2. Delimiter. This is only valid for list/set fields/properties.
+    /// </para>
+    /// </remarks>
     public class DelimitedStringParser<T, TClassMetadataReader>
         where T : new()
         where TClassMetadataReader : IClassMetadataReader<T>, new()
@@ -126,7 +145,7 @@ namespace DelimitedStringParser
                 //
                 if (fieldMetadata.IsParsableObject)
                 {
-                    // Create the delegate to convert string to Bond object (using Parse method).
+                    // Create the delegate to convert string to the object (using Parse method).
                     //
                     convertDelegate = Delegate.CreateDelegate(
                         Expression.GetFuncType(typeof(string), collectionUnderlyingType),
