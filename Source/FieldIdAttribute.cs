@@ -2,10 +2,10 @@
 
 namespace DelimitedStringParser
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true)]
     public class FieldIdAttribute : Attribute
     {
-        private static readonly FieldIdAttribute Default = new FieldIdAttribute();
+        private static readonly FieldIdAttribute Default = new FieldIdAttribute(-1, -1);
 
         private readonly int version;
         private readonly int index;
@@ -24,10 +24,6 @@ namespace DelimitedStringParser
             {
                 return this.index;
             }
-        }
-
-        public FieldIdAttribute() : this(-1, -1)
-        {
         }
 
         public FieldIdAttribute(int index)

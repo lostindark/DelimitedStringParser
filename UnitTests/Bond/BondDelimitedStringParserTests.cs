@@ -5,27 +5,27 @@ using Bond;
 using DelimitedStringParser.Bond;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace DelimitedStringParser.Tests
+namespace DelimitedStringParser.Tests.Bond
 {
     [TestClass()]
     public class BondDelimitedStringParserTests
     {
         [TestMethod()]
-        public void ParserTestNullValue()
+        public void BondParserTestNullValue()
         {
             var testStruct1 = BondDelimitedStringParser<TestStruct1>.Parse(null);
             Assert.IsNull(testStruct1);
         }
 
         [TestMethod()]
-        public void ParserTestEmptyValue()
+        public void BondParserTestEmptyValue()
         {
             var testStruct1 = BondDelimitedStringParser<TestStruct1>.Parse("");
             Assert.IsTrue(Comparer.Equal(new TestStruct1(), testStruct1));
         }
 
         [TestMethod()]
-        public void ParserTestStruct1EmptyForAllFields()
+        public void BondParserTestStructEmptyForAllFields()
         {
             var expected = new TestStruct1();
             var actual = BondDelimitedStringParser<TestStruct1>.Parse(";;;;;;;;;;");
@@ -37,7 +37,7 @@ namespace DelimitedStringParser.Tests
         /// Test simple types and enum.
         /// </summary>
         [TestMethod()]
-        public void ParserTestStruct1()
+        public void BondParserTestSimpleTypesAndEnum()
         {
             var expected = new TestStruct1
             {
@@ -77,7 +77,7 @@ namespace DelimitedStringParser.Tests
         /// Test nullable, vector/list/set.
         /// </summary>
         [TestMethod()]
-        public void ParserTestStruct2()
+        public void BondParserTestNullableAndCollections()
         {
             var expected = new TestStruct2
             {
@@ -107,7 +107,7 @@ namespace DelimitedStringParser.Tests
         /// Test nested structs.
         /// </summary>
         [TestMethod()]
-        public void ParserTestStruct4()
+        public void BondParserTestNestedStructs()
         {
             var expected = new TestStruct4
             {
@@ -144,11 +144,12 @@ namespace DelimitedStringParser.Tests
         }
 
         /// <summary>
-        /// Test Versioned Data v1
+        /// Test Versioned Data
         /// </summary>
         [TestMethod()]
-        public void ParserTestStruct5V1()
+        public void BondParserTestVersionedData()
         {
+            // v1
             var expected = new TestStruct5
             {
                 Field0 = 2,
@@ -157,24 +158,16 @@ namespace DelimitedStringParser.Tests
             };
 
             var actual = BondDelimitedStringParser<TestStruct5>.Parse("1|2|abc|1");
-
             Assert.IsTrue(Comparer.Equal(expected, actual));
-        }
 
-        /// <summary>
-        /// Test Versioned Data v2
-        /// </summary>
-        [TestMethod()]
-        public void ParserTestStruct5V2()
-        {
-            var expected = new TestStruct5
+            // v2
+            expected = new TestStruct5
             {
                 Field0 = 2,
                 Field2 = false,
             };
 
-            var actual = BondDelimitedStringParser<TestStruct5>.Parse("2|2|0");
-
+            actual = BondDelimitedStringParser<TestStruct5>.Parse("2|2|0");
             Assert.IsTrue(Comparer.Equal(expected, actual));
         }
     }

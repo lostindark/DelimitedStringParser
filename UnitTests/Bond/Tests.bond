@@ -1,4 +1,4 @@
-namespace DelimitedStringParser.Tests
+namespace DelimitedStringParser.Tests.Bond
 
 enum TestEnum
 {

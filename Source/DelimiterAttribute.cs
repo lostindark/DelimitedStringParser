@@ -5,7 +5,7 @@ namespace DelimitedStringParser
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Property | AttributeTargets.Field)]
     public class DelimiterAttribute : Attribute
     {
-        private static readonly DelimiterAttribute Default = new DelimiterAttribute();
+        private static readonly DelimiterAttribute Default = new DelimiterAttribute(string.Empty);
 
         private readonly string delimiter;
 
@@ -19,13 +19,6 @@ namespace DelimitedStringParser
             {
                 return this.delimiter;
             }
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the DelimiterAttribute class.
-        /// </summary>
-        public DelimiterAttribute() : this(string.Empty)
-        {
         }
 
         /// <summary>

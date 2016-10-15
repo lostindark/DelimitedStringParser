@@ -52,33 +52,37 @@ namespace DelimitedStringParser
                     }
 
                     var fieldIds = property.GetCustomAttributes<FieldIdAttribute>();
-                    foreach (var fieldId in fieldIds)
+
+                    if (fieldIds != null && fieldIds.Any())
                     {
-                        if (fieldId.Version == -1)
+                        foreach (var fieldId in fieldIds)
                         {
-                            if (fieldId.Index != -1)
+                            if (fieldId.Version == -1)
                             {
-                                lookupIndex = fieldId.Index;
+                                if (fieldId.Index != -1)
+                                {
+                                    lookupIndex = fieldId.Index;
+                                }
+                            }
+                            else
+                            {
+                                lookupIndexTable.Add(fieldId.Version, fieldId.Index);
                             }
                         }
-                        else
+
+                        FieldMetadata metadata = new FieldMetadata()
                         {
-                            lookupIndexTable.Add(fieldId.Version, fieldId.Index);
-                        }
+                            PropInfo = property,
+                            IsParsableObject = isParsableObject,
+                            IsCollection = isCollection,
+                            CollectionDelimiter = collectionDelimiter,
+                            CollectionUnderlyingType = collectionUnderlyingType,
+                            LookupIndex = lookupIndex,
+                            LookupIndexTable = lookupIndexTable,
+                        };
+
+                        yield return metadata;
                     }
-
-                    FieldMetadata metadata = new FieldMetadata()
-                    {
-                        PropInfo = property,
-                        IsParsableObject = isParsableObject,
-                        IsCollection = isCollection,
-                        CollectionDelimiter = collectionDelimiter,
-                        CollectionUnderlyingType = collectionUnderlyingType,
-                        LookupIndex = lookupIndex,
-                        LookupIndexTable = lookupIndexTable,
-                    };
-
-                    yield return metadata;
                 }
             }
         }

@@ -7,8 +7,8 @@
     <ProjectGuid>{32F0244D-421F-419A-B305-28F54446F857}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DelimitedStringParserTests</RootNamespace>
-    <AssemblyName>DelimitedStringParserTests</AssemblyName>
+    <RootNamespace>DelimitedStringParser.Tests</RootNamespace>
+    <AssemblyName>DelimitedStringParser.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -76,9 +76,10 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="BondDelimitedStringParserTests.cs" />
+    <Compile Include="Bond\BondDelimitedStringParserTests.cs" />
     <Compile Include="DelimitedStringParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestPlainObjects.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Source\Source.csproj">
@@ -89,7 +90,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <BondCodegen Include="Tests.bond" />
+    <BondCodegen Include="Bond\Tests.bond" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

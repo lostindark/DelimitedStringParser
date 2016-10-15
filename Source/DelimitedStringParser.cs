@@ -58,6 +58,8 @@ namespace DelimitedStringParser
                     Parser = GenerateFieldPaser(fieldMetadata)
                 });
             }
+
+            // TODO: check there is at least one field. Check for field lookup index conflicts.
         }
 
         /// <summary>
@@ -91,14 +93,14 @@ namespace DelimitedStringParser
                 {
                     // Get field index in the delimited string.
                     //
-                    int? fieldLookupIndex = GetLookupIndex(field.Metadata, isVersionedData, currentVersion);
+                    int fieldLookupIndex = GetLookupIndex(field.Metadata, isVersionedData, currentVersion);
 
-                    if (fieldLookupIndex != null)
+                    if (fieldLookupIndex != -1)
                     {
                         string valueStr = null;
                         if (fieldLookupIndex < resultArray.Length)
                         {
-                            valueStr = resultArray[fieldLookupIndex.Value];
+                            valueStr = resultArray[fieldLookupIndex];
                         }
 
                         if (!string.IsNullOrEmpty(valueStr))
@@ -285,12 +287,13 @@ namespace DelimitedStringParser
         /// <param name="isVersionedData">Whether the data is versioned.</param>
         /// <param name="version">Version of the versioned data.</param>
         /// <returns>The index of the field.</returns>
-        private static int? GetLookupIndex(FieldMetadata fieldMetadata, bool isVersionedData, int version)
+        private static int GetLookupIndex(FieldMetadata fieldMetadata, bool isVersionedData, int version)
         {
-            int? index = null;
+            int index = -1;
 
             if (isVersionedData
-                && fieldMetadata.LookupIndexTable != null)
+                && fieldMetadata.LookupIndexTable != null
+                && fieldMetadata.LookupIndexTable.Count != 0)
             {
                 // If it is versioned data, and the index lookup table is not empty,
                 // we need to use the lookup table to find field index.
@@ -308,7 +311,7 @@ namespace DelimitedStringParser
 
             // Versioned data always has the version as the first field, the actual index for other fields are off by 1.
             //
-            if (isVersionedData && index != null)
+            if (isVersionedData && index != -1)
             {
                 index++;
             }
