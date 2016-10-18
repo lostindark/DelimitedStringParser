@@ -5,7 +5,7 @@ namespace DelimitedStringParser
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public class IsVersionedDataAttribute : Attribute
     {
-        private static readonly IsVersionedDataAttribute Default = new IsVersionedDataAttribute();
+        private static readonly IsVersionedDataAttribute Default = new IsVersionedDataAttribute(false);
 
         private readonly bool isVersionedData;
 
@@ -19,13 +19,6 @@ namespace DelimitedStringParser
             {
                 return this.isVersionedData;
             }
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the IsVersionedDataAttribute class.
-        /// </summary>
-        public IsVersionedDataAttribute() : this(false)
-        {
         }
 
         /// <summary>

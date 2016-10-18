@@ -20,9 +20,9 @@ namespace DelimitedStringParser
     /// 2. Delimiter. Specific what is used to seperate the fields in the string.
     /// </para>
     /// <para>
-    /// For fields/properties, there are 2 attributes:
+    /// For properties, there are 2 attributes:
     /// 1. FieldId. Specific the field index in the string. The value can be a number, or a complex format to specify different field id for different version.
-    /// 2. Delimiter. This is only valid for list/set fields/properties.
+    /// 2. Delimiter. This is only valid for list/set properties.
     /// </para>
     /// </remarks>
     public class DelimitedStringParser<T, TClassMetadataReader>

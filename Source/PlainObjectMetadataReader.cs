@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
@@ -42,6 +41,11 @@ namespace DelimitedStringParser
                     if (isCollection)
                     {
                         collectionDelimiter = property.GetCustomAttribute<DelimiterAttribute>()?.Delimiter;
+
+                        if (string.IsNullOrEmpty(collectionDelimiter))
+                        {
+                            throw new ArgumentException(string.Format("You must specificy a delimiter for {0} given it's collection.", property.Name));
+                        }
 
                         collectionUnderlyingType = property.PropertyType.GetGenericArguments()[0];
                         isParsableObject = collectionUnderlyingType.GetCustomAttributes<DelimiterAttribute>().Any();
