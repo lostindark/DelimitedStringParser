@@ -3,38 +3,38 @@
 namespace DelimitedStringParser
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Property | AttributeTargets.Field)]
-    public class DelimiterAttribute : Attribute
+    public class QuoteAttribute : Attribute
     {
-        private static readonly DelimiterAttribute Default = new DelimiterAttribute(',');
+        private static readonly QuoteAttribute Default = new QuoteAttribute(null);
 
-        private readonly char delimiter;
+        private readonly char? quote;
 
         /// <summary>
-        /// Gets the Delimiter.
+        /// Gets the quote character.
         /// </summary>
-        /// <returns>The delimiter.</returns>
-        public virtual char Value
+        /// <returns>The quote character.</returns>
+        public virtual char? Value
         {
             get
             {
-                return this.delimiter;
+                return this.quote;
             }
         }
 
         /// <summary>
-        /// Initializes a new instance of the DelimiterAttribute class using the delimiter.
+        /// Initializes a new instance of the QuoteAttribute class using the quote character.
         /// </summary>
-        /// <param name="delimiter">The delimiter.</param>
-        public DelimiterAttribute(char delimiter)
+        /// <param name="quote">The quote character.</param>
+        public QuoteAttribute(char? quote)
         {
-            this.delimiter = delimiter;
+            this.quote = quote;
         }
 
         /// <summary>
-        /// Determines whether two DelimiterAttribute instances are equal.
+        /// Determines whether two QuoteAttribute instances are equal.
         /// </summary>
         /// <returns>true if the value of the given object is equal to that of the current object; otherwise, false.</returns>
-        /// <param name="obj">The <see cref="T:DelimitedStringParser.DelimiterAttribute" /> to test the value equality of.</param>
+        /// <param name="obj">The <see cref="T:DelimitedStringParser.QuoteAttribute" /> to test the value equality of.</param>
         public override bool Equals(object obj)
         {
             if (obj == this)
@@ -42,13 +42,13 @@ namespace DelimitedStringParser
                 return true;
             }
 
-            DelimiterAttribute delimiterAttribute = obj as DelimiterAttribute;
-            return delimiterAttribute != null
-                && delimiterAttribute.Value == this.Value;
+            QuoteAttribute QuoteAttribute = obj as QuoteAttribute;
+            return QuoteAttribute != null
+                && QuoteAttribute.Value == this.Value;
         }
 
         /// <summary>Returns the hash code for this instance.</summary>
-        /// <returns>A hash code for the current <see cref="T:DelimitedStringParser.DelimiterAttribute" />.</returns>
+        /// <returns>A hash code for the current <see cref="T:DelimitedStringParser.QuoteAttribute" />.</returns>
         public override int GetHashCode()
         {
             return this.Value.GetHashCode();

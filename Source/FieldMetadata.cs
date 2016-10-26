@@ -15,7 +15,11 @@ namespace DelimitedStringParser
 
         public bool IsCollection;
 
-        public string CollectionDelimiter;
+        public char? CollectionDelimiter;
+
+        public char? CollectionQuote;
+
+        public char? CollectionEscape;
 
         public bool IsParsableObject;
 

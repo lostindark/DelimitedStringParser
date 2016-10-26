@@ -25,11 +25,22 @@ namespace DelimitedStringParser
             return typeof(TypeConverter).GetMethod("ConvertToIEnumerable").MakeGenericMethod(listUnderlyingType);
         }
 
-        public static IEnumerable<T> ConvertToIEnumerable<T>(string str, string delimiter, bool removeEmptyEntries, Func<string, T> convert)
+        public static IEnumerable<T> ConvertToIEnumerable<T>(string str, char delimiter, char? quote, char? escape, bool removeEmptyEntries, Func<string, T> convert)
         {
-            return str
-                .Split(new string[] { delimiter }, removeEmptyEntries ? StringSplitOptions.RemoveEmptyEntries : StringSplitOptions.None)
+            return SplitField(str, delimiter, quote, escape, removeEmptyEntries ? StringSplitOptions.RemoveEmptyEntries : StringSplitOptions.None)
                 .Select(i => convert(i));
+        }
+
+        public static IEnumerable<string> SplitField(string str, char delimiter, char? quote, char? escape, StringSplitOptions splitOptions)
+        {
+            // If escape character is null, the quote character will be used.
+            if (escape == null)
+            {
+                escape = quote;
+            }
+
+            // TODO: implement the actual split use a state machine.
+            return str.Split(new char[] { delimiter }, splitOptions);
         }
 
         public static string ConvertToString(string str)

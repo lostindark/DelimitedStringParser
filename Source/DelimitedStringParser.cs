@@ -29,10 +29,13 @@ namespace DelimitedStringParser
         where T : new()
         where TClassMetadataReader : IClassMetadataReader<T>, new()
     {
-        private static readonly bool isVersionedData = false;
-        private static readonly string delimiter;
+        private static readonly bool IsVersionedData = false;
+        private static readonly char Delimiter;
+        private static readonly char? Quote;
+        private static readonly char? Escape;
 
-        private static readonly List<FieldData> fieldList;
+        private static readonly Dictionary<int, Dictionary<int, FieldData>> VersionedPositionToFieldMapping;
+        private static readonly Dictionary<int, FieldData> NonVersionedPositionToFieldMapping;
 
         /// <summary>
         /// Static constructor.
@@ -41,15 +44,12 @@ namespace DelimitedStringParser
         static DelimitedStringParser()
         {
             TClassMetadataReader classMetadataReader = new TClassMetadataReader();
-            isVersionedData = classMetadataReader.IsVersionedData;
-            delimiter = classMetadataReader.Delimiter;
+            IsVersionedData = classMetadataReader.IsVersionedData;
+            Delimiter = classMetadataReader.Delimiter;
+            Quote = classMetadataReader.Quote;
+            Escape = classMetadataReader.Escape;
 
-            if (string.IsNullOrEmpty(delimiter))
-            {
-                throw new ArgumentException("The delimiter parameter cannot be null or empty.", nameof(delimiter));
-            }
-
-            fieldList = new List<FieldData>();
+            List<FieldData> fieldList = new List<FieldData>();
             foreach (var fieldMetadata in classMetadataReader.FieldList)
             {
                 fieldList.Add(new FieldData()
@@ -60,6 +60,36 @@ namespace DelimitedStringParser
             }
 
             // TODO: check there is at least one field. Check for field lookup index conflicts.
+
+            // Build field position to field mapping.
+            // For versioned mapping, the first level is the version number, the second level is the field position.
+            VersionedPositionToFieldMapping = new Dictionary<int, Dictionary<int, FieldData>>();
+            NonVersionedPositionToFieldMapping = new Dictionary<int, FieldData>();
+            foreach (var field in fieldList)
+            {
+                if (field.Metadata.LookupIndex != -1)
+                {
+                    // TODO: implement better error handling for duplicate field lookup index.
+                    NonVersionedPositionToFieldMapping.Add(field.Metadata.LookupIndex, field);
+                }
+
+                if (field.Metadata.LookupIndexTable != null && field.Metadata.LookupIndexTable.Count > 0)
+                {
+                    foreach (var versionToFieldIndex in field.Metadata.LookupIndexTable)
+                    {
+                        Dictionary<int, FieldData> posToFieldMapping;
+                        
+                        if (!VersionedPositionToFieldMapping.TryGetValue(versionToFieldIndex.Key, out posToFieldMapping))
+                        {
+                            posToFieldMapping = new Dictionary<int, FieldData>();
+                            VersionedPositionToFieldMapping.Add(versionToFieldIndex.Key, posToFieldMapping);
+                        }
+
+                        // TODO: implement better error handling for duplicate field lookup index.
+                        posToFieldMapping.Add(versionToFieldIndex.Value, field);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -79,48 +109,61 @@ namespace DelimitedStringParser
 
             if (str.Length > 0)
             {
-                int currentVersion = 0;
-                string[] resultArray = str.Split(new string[] { delimiter }, StringSplitOptions.None);
+                int fieldId = 0;
+                Dictionary<int, FieldData> positionToFieldMappingForCurrentVersion = null;
 
-                if (isVersionedData)
+                foreach (string fieldValue in TypeConverter.SplitField(str, Delimiter, Quote, Escape, StringSplitOptions.None))
                 {
-                    // For versioned data, the first element is always version number.
-                    //
-                    currentVersion = int.Parse(resultArray[0], NumberStyles.Integer, CultureInfo.InvariantCulture);
-                }
-
-                foreach (var field in fieldList)
-                {
-                    // Get field index in the delimited string.
-                    //
-                    int fieldLookupIndex = GetLookupIndex(field.Metadata, isVersionedData, currentVersion);
-
-                    if (fieldLookupIndex != -1)
+                    if (IsVersionedData && fieldId == 0)
                     {
-                        string valueStr = null;
-                        if (fieldLookupIndex < resultArray.Length)
+                        // For versioned data, the first element is always version number.
+                        //
+                        int currentVersion = int.Parse(fieldValue, NumberStyles.Integer, CultureInfo.InvariantCulture);
+                        VersionedPositionToFieldMapping.TryGetValue(currentVersion, out positionToFieldMappingForCurrentVersion);
+                    }
+                    else
+                    {
+                        FieldData fieldData = null;
+                        int actualFieldId = fieldId;
+
+                        // Versioned data always has the version as the first field, the actual index for other fields are off by 1.
+                        //
+                        if (IsVersionedData)
                         {
-                            valueStr = resultArray[fieldLookupIndex];
+                            actualFieldId--;
                         }
 
-                        if (!string.IsNullOrEmpty(valueStr))
+                        if (IsVersionedData && positionToFieldMappingForCurrentVersion != null)
+                        {
+                            positionToFieldMappingForCurrentVersion.TryGetValue(actualFieldId, out fieldData);
+                        }
+
+                        if (fieldData == null)
+                        {
+                            NonVersionedPositionToFieldMapping.TryGetValue(actualFieldId, out fieldData);
+                        }
+
+                        // Unknown field is ignored.
+                        if (fieldData != null && !string.IsNullOrEmpty(fieldValue))
                         {
                             try
                             {
-                                field.Parser(returnObject, valueStr);
+                                fieldData.Parser(returnObject, fieldValue);
                             }
                             catch (Exception ex)
                             {
-                                throw new ArgumentException(string.Format("Failed to parse field {0} with value: {1}.", "", valueStr), ex);
+                                throw new ArgumentException(string.Format("Failed to parse field {0} with value: {1}.", fieldData.Metadata.Info, fieldValue), ex);
                             }
                         }
                     }
+
+                    fieldId++;
                 }
             }
 
             return returnObject;
         }
-
+        
         /// <summary>
         /// Generate a delegate to parse string to the type of the field and set it.
         /// </summary>
@@ -195,7 +238,9 @@ namespace DelimitedStringParser
                     Expression.Call(
                         TypeConverter.GetConvertToIEnumerableMethod(propInfo.PropertyType),
                         strParameter,
-                        Expression.Constant(fieldMetadata.CollectionDelimiter),
+                        Expression.Constant(fieldMetadata.CollectionDelimiter.Value),
+                        Expression.Constant(fieldMetadata.CollectionQuote, typeof(char?)),
+                        Expression.Constant(fieldMetadata.CollectionEscape, typeof(char?)),
                         Expression.Constant(removeEmptyEntries),
                         Expression.Constant(convertDelegate)));
             }
@@ -278,45 +323,6 @@ namespace DelimitedStringParser
             return string.Format(
                 "Field type of {0} is not supported in this parser.",
                 fieldInfo);
-        }
-
-        /// <summary>
-        /// Get lookup index for the field.
-        /// </summary>
-        /// <param name="fieldMetadata">The field metadata.</param>
-        /// <param name="isVersionedData">Whether the data is versioned.</param>
-        /// <param name="version">Version of the versioned data.</param>
-        /// <returns>The index of the field.</returns>
-        private static int GetLookupIndex(FieldMetadata fieldMetadata, bool isVersionedData, int version)
-        {
-            int index = -1;
-
-            if (isVersionedData
-                && fieldMetadata.LookupIndexTable != null
-                && fieldMetadata.LookupIndexTable.Count != 0)
-            {
-                // If it is versioned data, and the index lookup table is not empty,
-                // we need to use the lookup table to find field index.
-                //
-                int tempIndex = -1;
-                if (fieldMetadata.LookupIndexTable.TryGetValue(version, out tempIndex))
-                {
-                    index = tempIndex;
-                }
-            }
-            else
-            {
-                index = fieldMetadata.LookupIndex;
-            }
-
-            // Versioned data always has the version as the first field, the actual index for other fields are off by 1.
-            //
-            if (isVersionedData && index != -1)
-            {
-                index++;
-            }
-
-            return index;
         }
 
         private class FieldData

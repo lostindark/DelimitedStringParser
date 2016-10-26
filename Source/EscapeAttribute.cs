@@ -3,38 +3,38 @@
 namespace DelimitedStringParser
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Property | AttributeTargets.Field)]
-    public class DelimiterAttribute : Attribute
+    public class EscapeAttribute : Attribute
     {
-        private static readonly DelimiterAttribute Default = new DelimiterAttribute(',');
+        private static readonly EscapeAttribute Default = new EscapeAttribute(null);
 
-        private readonly char delimiter;
+        private readonly char? escape;
 
         /// <summary>
-        /// Gets the Delimiter.
+        /// Gets the escape character.
         /// </summary>
-        /// <returns>The delimiter.</returns>
-        public virtual char Value
+        /// <returns>The escape character.</returns>
+        public virtual char? Value
         {
             get
             {
-                return this.delimiter;
+                return this.escape;
             }
         }
 
         /// <summary>
-        /// Initializes a new instance of the DelimiterAttribute class using the delimiter.
+        /// Initializes a new instance of the EscapeAttribute class using the escape character.
         /// </summary>
-        /// <param name="delimiter">The delimiter.</param>
-        public DelimiterAttribute(char delimiter)
+        /// <param name="escape">The escape character.</param>
+        public EscapeAttribute(char? escape)
         {
-            this.delimiter = delimiter;
+            this.escape = escape;
         }
 
         /// <summary>
-        /// Determines whether two DelimiterAttribute instances are equal.
+        /// Determines whether two EscapeAttribute instances are equal.
         /// </summary>
         /// <returns>true if the value of the given object is equal to that of the current object; otherwise, false.</returns>
-        /// <param name="obj">The <see cref="T:DelimitedStringParser.DelimiterAttribute" /> to test the value equality of.</param>
+        /// <param name="obj">The <see cref="T:DelimitedStringParser.EscapeAttribute" /> to test the value equality of.</param>
         public override bool Equals(object obj)
         {
             if (obj == this)
@@ -42,16 +42,16 @@ namespace DelimitedStringParser
                 return true;
             }
 
-            DelimiterAttribute delimiterAttribute = obj as DelimiterAttribute;
-            return delimiterAttribute != null
-                && delimiterAttribute.Value == this.Value;
+            EscapeAttribute EscapeAttribute = obj as EscapeAttribute;
+            return EscapeAttribute != null
+                && EscapeAttribute.escape == this.escape;
         }
 
         /// <summary>Returns the hash code for this instance.</summary>
-        /// <returns>A hash code for the current <see cref="T:DelimitedStringParser.DelimiterAttribute" />.</returns>
+        /// <returns>A hash code for the current <see cref="T:DelimitedStringParser.EscapeAttribute" />.</returns>
         public override int GetHashCode()
         {
-            return this.Value.GetHashCode();
+            return this.escape.GetHashCode();
         }
 
         /// <summary>Determines if this attribute is the default.</summary>

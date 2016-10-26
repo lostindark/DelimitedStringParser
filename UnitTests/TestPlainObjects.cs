@@ -10,7 +10,7 @@ namespace DelimitedStringParser.Tests
         Value2 = 2,
     }
 
-    [Delimiter(";")]
+    [Delimiter(';')]
     public class TestClass1
     {
         [FieldId(0)]
@@ -74,7 +74,7 @@ namespace DelimitedStringParser.Tests
         }
     }
 
-    [Delimiter(";")]
+    [Delimiter(';')]
     public partial class TestClass2
     {
         [FieldId(0)]
@@ -83,19 +83,19 @@ namespace DelimitedStringParser.Tests
         [FieldId(1)]
         public TestEnum? Field1 { get; set; }
 
-        [Delimiter(":")]
+        [Delimiter(':')]
         [FieldId(2)]
         public List<int> Field2 { get; set; }
 
-        [Delimiter(":")]
+        [Delimiter(':')]
         [FieldId(3)]
         public List<TestEnum> Field3 { get; set; }
 
-        [Delimiter(":")]
+        [Delimiter(':')]
         [FieldId(4)]
         public LinkedList<int> Field4 { get; set; }
 
-        [Delimiter(":")]
+        [Delimiter(':')]
         [FieldId(5)]
         public HashSet<int> Field5 { get; set; }
 
@@ -122,7 +122,7 @@ namespace DelimitedStringParser.Tests
         }
     }
 
-    [Delimiter("#")]
+    [Delimiter('#')]
     public partial class TestClass3
     {
         [FieldId(0)]
@@ -150,7 +150,7 @@ namespace DelimitedStringParser.Tests
         }
     }
 
-    [Delimiter(";")]
+    [Delimiter(';')]
     public partial class TestClass4
     {
         [FieldId(0)]
@@ -159,7 +159,7 @@ namespace DelimitedStringParser.Tests
         [FieldId(1)]
         public TestClass3 Field1 { get; set; }
 
-        [Delimiter(":")]
+        [Delimiter(':')]
         [FieldId(2)]
         public List<TestClass3> Field2 { get; set; }
 
@@ -184,7 +184,7 @@ namespace DelimitedStringParser.Tests
     }
 
     [IsVersionedData(true)]
-    [Delimiter("|")]
+    [Delimiter('|')]
     public partial class TestClass5
     {
         [FieldId(0)]

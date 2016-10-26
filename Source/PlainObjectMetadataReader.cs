@@ -15,11 +15,33 @@ namespace DelimitedStringParser
             }
         }
 
-        public string Delimiter
+        public char Delimiter
         {
             get
             {
-                return typeof(T).GetCustomAttribute<DelimiterAttribute>()?.Delimiter;
+                var delimiterAttribute = typeof(T).GetCustomAttribute<DelimiterAttribute>();
+                if (delimiterAttribute == null)
+                {
+                    throw new ArgumentException(string.Format("You must specificy a delimiter for {0}.", nameof(T)));
+                }
+
+                return delimiterAttribute.Value;
+            }
+        }
+
+        public char? Quote
+        {
+            get
+            {
+                return typeof(T).GetCustomAttribute<QuoteAttribute>()?.Value;
+            }
+        }
+
+        public char? Escape
+        {
+            get
+            {
+                return typeof(T).GetCustomAttribute<EscapeAttribute>()?.Value;
             }
         }
 
@@ -33,19 +55,24 @@ namespace DelimitedStringParser
                     Dictionary<int, int> lookupIndexTable = new Dictionary<int, int>();
                     bool isParsableObject = false;
                     Type collectionUnderlyingType = null;
-                    string collectionDelimiter = null;
+                    char? collectionDelimiter = null;
+                    char? collectionQuote = null;
+                    char? collectionEscape = null;
 
                     bool isCollection = property.PropertyType.IsGenericType
                         && property.PropertyType.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ICollection<>));
 
                     if (isCollection)
                     {
-                        collectionDelimiter = property.GetCustomAttribute<DelimiterAttribute>()?.Delimiter;
+                        collectionDelimiter = property.GetCustomAttribute<DelimiterAttribute>()?.Value;
 
-                        if (string.IsNullOrEmpty(collectionDelimiter))
+                        if (collectionDelimiter == null)
                         {
                             throw new ArgumentException(string.Format("You must specificy a delimiter for {0} given it's collection.", property.Name));
                         }
+
+                        collectionQuote = property.GetCustomAttribute<QuoteAttribute>()?.Value;
+                        collectionEscape = property.GetCustomAttribute<EscapeAttribute>()?.Value;
 
                         collectionUnderlyingType = property.PropertyType.GetGenericArguments()[0];
                         isParsableObject = collectionUnderlyingType.GetCustomAttributes<DelimiterAttribute>().Any();
@@ -80,6 +107,8 @@ namespace DelimitedStringParser
                             IsParsableObject = isParsableObject,
                             IsCollection = isCollection,
                             CollectionDelimiter = collectionDelimiter,
+                            CollectionQuote = collectionQuote,
+                            CollectionEscape = collectionEscape,
                             CollectionUnderlyingType = collectionUnderlyingType,
                             LookupIndex = lookupIndex,
                             LookupIndexTable = lookupIndexTable,

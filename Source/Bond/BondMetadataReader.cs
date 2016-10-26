@@ -29,15 +29,39 @@ namespace DelimitedStringParser.Bond
             }
         }
 
-        public string Delimiter
+        public char Delimiter
         {
             get
             {
                 return bondAttributes
                     .Where(attr => attr.Name == "Delimiter")
                     .Select(x => x.Value)
-                    .DefaultIfEmpty(null)
-                    .First();
+                    .First()
+                    .Single();
+            }
+        }
+
+        public char? Quote
+        {
+            get
+            {
+                return bondAttributes
+                    .Where(attr => attr.Name == "Quote")
+                    .Select(x => x.Value)
+                    .FirstOrDefault()?
+                    .Single();
+            }
+        }
+
+        public char? Escape
+        {
+            get
+            {
+                return bondAttributes
+                    .Where(attr => attr.Name == "Escape")
+                    .Select(x => x.Value)
+                    .FirstOrDefault()?
+                    .Single();
             }
         }
 
@@ -51,7 +75,9 @@ namespace DelimitedStringParser.Bond
                     Dictionary<int, int> lookupIndexTable;
                     bool isParsableObject = false;
                     Type collectionUnderlyingType = null;
-                    string collectionDelimiter = null;
+                    char? collectionDelimiter = null;
+                    char? collectionQuote = null;
+                    char? collectionEscape = null;
 
                     bool isCollection = property.PropertyType.IsGenericType
                         && property.PropertyType.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ICollection<>));
@@ -62,8 +88,22 @@ namespace DelimitedStringParser.Bond
                             .GetCustomAttributes<AttributeAttribute>(false)
                             .Where(attr => attr.Name == "Delimiter")
                             .Select(x => x.Value)
-                            .DefaultIfEmpty(null)
-                            .First();
+                            .First()
+                            .Single();
+
+                        collectionQuote = property
+                            .GetCustomAttributes<AttributeAttribute>(false)
+                            .Where(attr => attr.Name == "Quote")
+                            .Select(x => x.Value)
+                            .FirstOrDefault()?
+                            .Single();
+
+                        collectionEscape = property
+                            .GetCustomAttributes<AttributeAttribute>(false)
+                            .Where(attr => attr.Name == "Escape")
+                            .Select(x => x.Value)
+                            .FirstOrDefault()?
+                            .Single();
 
                         collectionUnderlyingType = property.PropertyType.GetGenericArguments()[0];
                         isParsableObject = collectionUnderlyingType.GetCustomAttributes<SchemaAttribute>().Any();
@@ -81,6 +121,8 @@ namespace DelimitedStringParser.Bond
                         IsParsableObject = isParsableObject,
                         IsCollection = isCollection,
                         CollectionDelimiter = collectionDelimiter,
+                        CollectionQuote = collectionQuote,
+                        CollectionEscape = collectionEscape,
                         CollectionUnderlyingType = collectionUnderlyingType,
                         LookupIndex = lookupIndex,
                         LookupIndexTable = lookupIndexTable,
