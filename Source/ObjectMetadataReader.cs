@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace DelimitedStringParser
 {
-    public class PlainObjectMetadataReader<T> : IClassMetadataReader<T>
+    public class ObjectMetadataReader<T> : IObjectMetadataReader<T>
     {
         public bool IsVersionedData
         {

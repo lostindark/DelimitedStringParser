@@ -7,7 +7,7 @@ using Bond;
 
 namespace DelimitedStringParser.Bond
 {
-    public class BondMetadataReader<T> : IClassMetadataReader<T>
+    public class BondMetadataReader<T> : IObjectMetadataReader<T>
     {
         private const string FieldIdAttribute = "FieldId";
         private const char FieldIndexDelimiter = ';';

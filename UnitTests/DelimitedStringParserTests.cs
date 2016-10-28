@@ -11,14 +11,14 @@ namespace DelimitedStringParser.Tests
         [TestMethod()]
         public void ParserTestNullValue()
         {
-            var testClass1 = PlainObjectDelimitedStringParser<TestClass1>.Parse(null);
+            var testClass1 = DelimitedStringParser<TestClass1>.Parse(null);
             Assert.IsNull(testClass1);
         }
 
         [TestMethod()]
         public void ParserTestEmptyValue()
         {
-            var testClass1 = PlainObjectDelimitedStringParser<TestClass1>.Parse("");
+            var testClass1 = DelimitedStringParser<TestClass1>.Parse("");
             Assert.AreEqual(new TestClass1(), testClass1);
         }
 
@@ -26,7 +26,7 @@ namespace DelimitedStringParser.Tests
         public void ParserTestClassEmptyForAllFields()
         {
             var expected = new TestClass1();
-            var actual = PlainObjectDelimitedStringParser<TestClass1>.Parse(";;;;;;;;;;");
+            var actual = DelimitedStringParser<TestClass1>.Parse(";;;;;;;;;;");
 
             Assert.AreEqual(expected, actual);
         }
@@ -66,7 +66,7 @@ namespace DelimitedStringParser.Tests
                 expected.Field9,
                 (int)expected.Field10);
 
-            var actual = PlainObjectDelimitedStringParser<TestClass1>.Parse(str);
+            var actual = DelimitedStringParser<TestClass1>.Parse(str);
 
             Assert.AreEqual(expected, actual);
         }
@@ -96,7 +96,7 @@ namespace DelimitedStringParser.Tests
                 string.Join(":", expected.Field4),
                 string.Join(":", expected.Field5));
 
-            var actual = PlainObjectDelimitedStringParser<TestClass2>.Parse(str);
+            var actual = DelimitedStringParser<TestClass2>.Parse(str);
 
             Assert.AreEqual(expected, actual);
         }
@@ -136,7 +136,7 @@ namespace DelimitedStringParser.Tests
                 string.Format("{0}#{1}", expected.Field1.Field0, expected.Field1.Field1),
                 string.Join(":", expected.Field2.Select(f => string.Format("{0}#{1}", f.Field0, f.Field1))));
 
-            var actual = PlainObjectDelimitedStringParser<TestClass4>.Parse(str);
+            var actual = DelimitedStringParser<TestClass4>.Parse(str);
 
             Assert.AreEqual(expected, actual);
         }
@@ -155,7 +155,7 @@ namespace DelimitedStringParser.Tests
                 Field2 = true,
             };
 
-            var actual = PlainObjectDelimitedStringParser<TestClass5>.Parse("1|2|abc|1");
+            var actual = DelimitedStringParser<TestClass5>.Parse("1|2|abc|1");
             Assert.AreEqual(expected, actual);
 
             // v2
@@ -165,7 +165,7 @@ namespace DelimitedStringParser.Tests
                 Field2 = false,
             };
 
-            actual = PlainObjectDelimitedStringParser<TestClass5>.Parse("2|2|0");
+            actual = DelimitedStringParser<TestClass5>.Parse("2|2|0");
             Assert.AreEqual(expected, actual);
         }
     }

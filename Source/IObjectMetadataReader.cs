@@ -2,7 +2,7 @@
 
 namespace DelimitedStringParser
 {
-    public interface IClassMetadataReader<T>
+    public interface IObjectMetadataReader<T>
     {
         bool IsVersionedData { get; }
 

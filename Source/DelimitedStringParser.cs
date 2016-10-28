@@ -7,10 +7,53 @@ using System.Reflection;
 namespace DelimitedStringParser
 {
     /// <summary>
+    /// A parser to parse delimited string into a plain C# object.
+    /// </summary>
+    /// <typeparam name="T">The target object type.</typeparam>
+    /// <example>
+    /// Below C# class definition is used to parse delimited string "Field0:Field1:Field2".
+    /// <code>
+    /// [Delimiter(":")]
+    /// public class MyClass1
+    /// {
+    ///     [FieldId(0)]
+    ///     public int32 Field0 { get; set; }
+    ///     [FieldId(1)]
+    ///     public string Field1 { get; set; }
+    ///     [FieldId(2)]
+    ///     public bool Field2 { get; set; }
+    /// }
+    /// </code>
+    /// To use the parser to parse the string "3:abc:false" into the C# object.
+    /// <code>
+    /// MyClass1 myClass1 = DelimitedStringParser&lt;MyClass1&gt;.Parse("3:abc:false");
+    /// </code>
+    /// Below C# class definition is used to parse a versioned data. V1|Field0|Field1, V2|Field1|Field2.
+    /// <code>
+    /// [IsVersionedData(true)]
+    /// [Delimiter("|")]
+    /// public class MyClass2
+    /// {
+    ///     [FieldId(0)]
+    ///     public int Field0 { get; set; }
+    ///     [FieldId(1, 1)]
+    ///     public string Field1 { get; set; }
+    ///     [FieldId(1, 2)]
+    ///     [FieldId(2, 1)]
+    ///     public bool Field2 { get; set; }
+    /// }
+    /// </code>
+    /// </example>
+    public class DelimitedStringParser<T> : DelimitedStringParser<T, ObjectMetadataReader<T>>
+        where T : new()
+    {
+    }
+
+    /// <summary>
     /// A parser to parse delimited string into an object. It supports versioned or non-versioned format.
     /// </summary>
     /// <typeparam name="T">The target object type.</typeparam>
-    /// <typeparam name="TClassMetadataReader">A class metadata reader that understand how to map the delimited string into the target class.</typeparam>
+    /// <typeparam name="TMetadataReader">An object metadata reader that understand how to map the delimited string into the target object.</typeparam>
     /// <remarks>
     /// This parser supports all simple types, nullable, and list/set. Map is not supported yet.
     /// It requires custom attributes on the class definition.
@@ -25,9 +68,9 @@ namespace DelimitedStringParser
     /// 2. Delimiter. This is only valid for list/set properties.
     /// </para>
     /// </remarks>
-    public class DelimitedStringParser<T, TClassMetadataReader>
+    public class DelimitedStringParser<T, TMetadataReader>
         where T : new()
-        where TClassMetadataReader : IClassMetadataReader<T>, new()
+        where TMetadataReader : IObjectMetadataReader<T>, new()
     {
         private static readonly bool IsVersionedData = false;
         private static readonly char Delimiter;
@@ -43,7 +86,7 @@ namespace DelimitedStringParser
         /// </summary>
         static DelimitedStringParser()
         {
-            TClassMetadataReader classMetadataReader = new TClassMetadataReader();
+            TMetadataReader classMetadataReader = new TMetadataReader();
             IsVersionedData = classMetadataReader.IsVersionedData;
             Delimiter = classMetadataReader.Delimiter;
             Quote = classMetadataReader.Quote;
@@ -112,7 +155,7 @@ namespace DelimitedStringParser
                 int fieldId = 0;
                 Dictionary<int, FieldData> positionToFieldMappingForCurrentVersion = null;
 
-                foreach (string fieldValue in TypeConverter.SplitField(str, Delimiter, Quote, Escape, StringSplitOptions.None))
+                foreach (string fieldValue in TypeConverter.SplitField(str, Delimiter, Quote, Escape))
                 {
                     if (IsVersionedData && fieldId == 0)
                     {
@@ -181,7 +224,6 @@ namespace DelimitedStringParser
 
             if (fieldMetadata.IsCollection)
             {
-                bool removeEmptyEntries = true;
                 Delegate convertDelegate = null;
                 Type collectionUnderlyingType = fieldMetadata.CollectionUnderlyingType;
 
@@ -195,7 +237,6 @@ namespace DelimitedStringParser
                     convertDelegate = Delegate.CreateDelegate(
                         Expression.GetFuncType(typeof(string), collectionUnderlyingType),
                         GetParseMethodForParsableObject(collectionUnderlyingType));
-                    removeEmptyEntries = false;
                 }
                 else if (collectionUnderlyingType.IsPrimitive
                     || collectionUnderlyingType == typeof(string))
@@ -241,7 +282,6 @@ namespace DelimitedStringParser
                         Expression.Constant(fieldMetadata.CollectionDelimiter.Value),
                         Expression.Constant(fieldMetadata.CollectionQuote, typeof(char?)),
                         Expression.Constant(fieldMetadata.CollectionEscape, typeof(char?)),
-                        Expression.Constant(removeEmptyEntries),
                         Expression.Constant(convertDelegate)));
             }
             else if (underlyingType.IsPrimitive
@@ -314,7 +354,7 @@ namespace DelimitedStringParser
 
         private static MethodInfo GetParseMethodForParsableObject(Type objectType)
         {
-            Type classMetadataReaderType = typeof(TClassMetadataReader).GetGenericTypeDefinition().MakeGenericType(new Type[] { objectType });
+            Type classMetadataReaderType = typeof(TMetadataReader).GetGenericTypeDefinition().MakeGenericType(new Type[] { objectType });
             return typeof(DelimitedStringParser<,>).MakeGenericType(new Type[] { objectType, classMetadataReaderType }).GetMethod("Parse");
         }
 

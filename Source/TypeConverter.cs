@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace DelimitedStringParser
 {
@@ -10,6 +11,12 @@ namespace DelimitedStringParser
     /// </summary>
     public static class TypeConverter
     {
+        enum ParseState
+        {
+            BeforeField,
+            InField,
+        }
+
         public static MethodInfo GetConvertMethod(Type type)
         {
             return typeof(TypeConverter).GetMethods().Single(m =>
@@ -25,22 +32,131 @@ namespace DelimitedStringParser
             return typeof(TypeConverter).GetMethod("ConvertToIEnumerable").MakeGenericMethod(listUnderlyingType);
         }
 
-        public static IEnumerable<T> ConvertToIEnumerable<T>(string str, char delimiter, char? quote, char? escape, bool removeEmptyEntries, Func<string, T> convert)
+        public static IEnumerable<T> ConvertToIEnumerable<T>(string str, char delimiter, char? quote, char? escape, Func<string, T> convert)
         {
-            return SplitField(str, delimiter, quote, escape, removeEmptyEntries ? StringSplitOptions.RemoveEmptyEntries : StringSplitOptions.None)
+            return SplitField(str, delimiter, quote, escape)
                 .Select(i => convert(i));
         }
 
-        public static IEnumerable<string> SplitField(string str, char delimiter, char? quote, char? escape, StringSplitOptions splitOptions)
+        public static IEnumerable<string> SplitField(string str, char delimiter, char? quote, char? escape)
         {
+            if (quote != null && delimiter == quote.Value)
+            {
+                throw new ArgumentException("The quote parameter can not be the same as the delimiter parameter.");
+            }
+
+            if (escape != null && delimiter == escape.Value)
+            {
+                throw new ArgumentException("The escape parameter can not be the same as the delimiter parameter.");
+            }
+
             // If escape character is null, the quote character will be used.
             if (escape == null)
             {
                 escape = quote;
             }
 
-            // TODO: implement the actual split use a state machine.
-            return str.Split(new char[] { delimiter }, splitOptions);
+            StringBuilder value = new StringBuilder();
+
+            if (!string.IsNullOrEmpty(str))
+            {
+                bool isEscaped = false;
+                bool isQuoted = false;
+                ParseState state = ParseState.BeforeField;
+
+                for (int i = 0; i < str.Length; i++)
+                {
+                    char chr = str[i];
+
+                    switch (state)
+                    {
+                        case ParseState.BeforeField:
+                            if (chr == delimiter)
+                            {
+                                yield return value.ToString();
+                                value.Clear();
+                                isEscaped = false;
+                                isQuoted = false;
+                            }
+                            else if (quote != null && chr == quote)
+                            {
+                                isQuoted = true;
+                                state = ParseState.InField;
+                            }
+                            else if (escape != null && chr == escape)
+                            {
+                                isEscaped = true;
+                                state = ParseState.InField;
+                            }
+                            else
+                            {
+                                state = ParseState.InField;
+                                value.Append(chr);
+                            }
+
+                            break;
+
+                        case ParseState.InField:
+                            if (isEscaped)
+                            {
+                                // If quote character and escape character are the same, we treated the quote character as escaped already. We need to fix it.
+                                if (escape == quote && chr == delimiter)
+                                {
+                                    yield return value.ToString();
+
+                                    state = ParseState.BeforeField;
+                                    value.Clear();
+                                    isEscaped = false;
+                                    isQuoted = false;
+                                }
+                                else
+                                {
+                                    value.Append(chr);
+                                    isEscaped = false;
+                                }
+                            }
+                            else if (isQuoted)
+                            {
+                                if (escape != null && chr == escape)
+                                {
+                                    isEscaped = true;
+                                }
+                                else if (chr == quote)
+                                {
+                                    isQuoted = false;
+                                }
+                                else
+                                {
+                                    value.Append(chr);
+                                }
+                            }
+                            else if (escape != null && chr == escape)
+                            {
+                                isEscaped = true;
+                            }
+                            else if (chr == delimiter)
+                            {
+                                yield return value.ToString();
+
+                                state = ParseState.BeforeField;
+                                value.Clear();
+                                isEscaped = false;
+                                isQuoted = false;
+                            }
+                            else
+                            {
+                                value.Append(chr);
+                            }
+
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+            }
+                
+            yield return value.ToString();
         }
 
         public static string ConvertToString(string str)

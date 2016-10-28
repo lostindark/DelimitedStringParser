@@ -67,8 +67,7 @@
   <ItemGroup>
     <Compile Include="EscapeAttribute.cs" />
     <Compile Include="QuoteAttribute.cs" />
-    <Compile Include="PlainObjectDelimitedStringParser.cs" />
-    <Compile Include="PlainObjectMetadataReader.cs" />
+    <Compile Include="ObjectMetadataReader.cs" />
     <Compile Include="Bond\BondDelimitedStringParser.cs" />
     <Compile Include="Bond\BondMetadataReader.cs" />
     <Compile Include="DelimitedStringParser.cs" />
@@ -76,7 +75,7 @@
     <Compile Include="DelimiterAttribute.cs" />
     <Compile Include="FieldIdAttribute.cs" />
     <Compile Include="FieldMetadata.cs" />
-    <Compile Include="IClassMetadataReader.cs" />
+    <Compile Include="IObjectMetadataReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeConverter.cs" />
   </ItemGroup>
