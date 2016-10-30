@@ -13,7 +13,7 @@ namespace DelimitedStringParser
     /// <example>
     /// Below C# class definition is used to parse delimited string "Field0:Field1:Field2".
     /// <code>
-    /// [Delimiter(":")]
+    /// [Delimiter(':')]
     /// public class MyClass1
     /// {
     ///     [FieldId(0)]
@@ -31,7 +31,7 @@ namespace DelimitedStringParser
     /// Below C# class definition is used to parse a versioned data. V1|Field0|Field1, V2|Field1|Field2.
     /// <code>
     /// [IsVersionedData(true)]
-    /// [Delimiter("|")]
+    /// [Delimiter('|')]
     /// public class MyClass2
     /// {
     ///     [FieldId(0)]
