@@ -1,10 +1,17 @@
 # DelimitedStringParser
-===================================================
 
+## Overview
 An utility class that converts a delimited string into C# objects. It parser supports all simple types, nullable, and list/set. Map is not supported yet.
 It requires custom attributes on the class definition.
 
-### Examples:
+## Why reinventing the wheels?
+There are nice libaries for reading CSV files (E.g. [A Fast CSV Reader](http://www.codeproject.com/Articles/9258/A-Fast-CSV-Reader), [File Helpers](http://www.filehelpers.net/)). If your purpose is to read/write CSV like files, please go with those libraries.
+This library is created to support the following special requirements:
+* You can only access one record as string each time, not entire file.
+* Need to support versioned data. See example below.
+* Support multi level of objects.
+
+## Examples:
 Below C# class definition is used to parse delimited string "Field0:Field1:Field2".
 ```C#
 [Delimiter(':')]
