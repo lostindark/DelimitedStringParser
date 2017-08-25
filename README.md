@@ -31,11 +31,14 @@ To use the parser to parse the string `"3:abc:false"` into the C# object.
 MyClass1 myClass1 = DelimitedStringParser<MyClass1>.Parse("3:abc:false");
 ```
 
-Below C# class definition is used to parse a versioned data.
 
-V1|Field0|Field1 e.g. `0|1|abc`
 
-V2|Field1|Field2 e.g. `0|def|true`
+Below C# class definition is used to parse a versioned data:
+
+| Version  | Format | Example Data (ver num is at index 0) |
+| --- | --- | --- |
+| 1 | Field0\|Field1\|Field2 | `1\|2\|abc\|1` |
+| 2 | Field0\|Field2 | `2\|2\|0` |
 
 ```C#
 [IsVersionedData(true)]
