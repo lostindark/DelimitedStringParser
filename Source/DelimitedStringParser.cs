@@ -259,7 +259,7 @@ namespace DelimitedStringParser
                 }
                 else
                 {
-                    throw new NotSupportedException(GetFieldTypeNotSupportedMessage(fieldMetadata.Info));
+                    throw new NotSupportedException(GetFieldTypeNotSupportedMessage(fieldMetadata));
                 }
 
                 // Find the constructor which takes IEnumerable<T>.
@@ -269,7 +269,7 @@ namespace DelimitedStringParser
 
                 if (constructor == null)
                 {
-                    throw new NotSupportedException(GetFieldTypeNotSupportedMessage(fieldMetadata.Info));
+                    throw new NotSupportedException(GetFieldTypeNotSupportedMessage(fieldMetadata));
                 }
 
                 // Use the ConvertToEnumerable method to convert the string into IEnumerable<T>, and then use the constructor to generate the property.
@@ -321,7 +321,7 @@ namespace DelimitedStringParser
 
                 if (!underlyingType.IsPrimitive)
                 {
-                    throw new NotSupportedException(GetFieldTypeNotSupportedMessage(fieldMetadata.Info));
+                    throw new NotSupportedException(GetFieldTypeNotSupportedMessage(fieldMetadata));
                 }
 
                 // We need to use Expression.Convert to convert the result back to nullable type.
@@ -338,7 +338,7 @@ namespace DelimitedStringParser
             }
             else
             {
-                throw new NotSupportedException(GetFieldTypeNotSupportedMessage(fieldMetadata.Info));
+                throw new NotSupportedException(GetFieldTypeNotSupportedMessage(fieldMetadata));
             }
 
             var propertyParameter = Expression.Parameter(propInfo.DeclaringType, propInfo.Name);
@@ -358,11 +358,11 @@ namespace DelimitedStringParser
             return typeof(DelimitedStringParser<,>).MakeGenericType(new Type[] { objectType, classMetadataReaderType }).GetMethod("Parse");
         }
 
-        private static string GetFieldTypeNotSupportedMessage(string fieldInfo)
+        private static string GetFieldTypeNotSupportedMessage(FieldMetadata fieldMetadata)
         {
             return string.Format(
                 "Field type of {0} is not supported in this parser.",
-                fieldInfo);
+                fieldMetadata.Info);
         }
 
         private class FieldData
