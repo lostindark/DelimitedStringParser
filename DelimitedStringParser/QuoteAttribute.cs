@@ -5,8 +5,6 @@ namespace DelimitedStringParser
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Property | AttributeTargets.Field)]
     public class QuoteAttribute : Attribute
     {
-        private static readonly QuoteAttribute Default = new QuoteAttribute(null);
-
         private readonly char? quote;
 
         /// <summary>
@@ -52,13 +50,6 @@ namespace DelimitedStringParser
         public override int GetHashCode()
         {
             return this.Value.GetHashCode();
-        }
-
-        /// <summary>Determines if this attribute is the default.</summary>
-        /// <returns>true if the attribute is the default value for this attribute class; otherwise, false.</returns>
-        public override bool IsDefaultAttribute()
-        {
-            return this.Equals(Default);
         }
     }
 }

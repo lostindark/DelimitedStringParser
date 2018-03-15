@@ -1,5 +1,6 @@
 ﻿# VS config
 /**/.vs/**/*
+*.csproj.user
 
 # Build generated files
 /**/bin/**/*

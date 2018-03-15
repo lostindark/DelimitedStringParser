@@ -1,11 +1,20 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2005
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Source", "Source\Source.csproj", "{EA3CC584-B880-4EC2-972A-A91CD5C47E87}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DelimitedStringParser", "DelimitedStringParser\DelimitedStringParser.csproj", "{EA3CC584-B880-4EC2-972A-A91CD5C47E87}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{32F0244D-421F-419A-B305-28F54446F857}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BFD3B926-904F-4228-BF3D-83352DE8A7FB} = {BFD3B926-904F-4228-BF3D-83352DE8A7FB}
+		{EA3CC584-B880-4EC2-972A-A91CD5C47E87} = {EA3CC584-B880-4EC2-972A-A91CD5C47E87}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DelimitedStringParser.Bond", "DelimitedStringParser.Bond\DelimitedStringParser.Bond.csproj", "{BFD3B926-904F-4228-BF3D-83352DE8A7FB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EA3CC584-B880-4EC2-972A-A91CD5C47E87} = {EA3CC584-B880-4EC2-972A-A91CD5C47E87}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,8 +30,15 @@ Global
 		{32F0244D-421F-419A-B305-28F54446F857}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32F0244D-421F-419A-B305-28F54446F857}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32F0244D-421F-419A-B305-28F54446F857}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFD3B926-904F-4228-BF3D-83352DE8A7FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFD3B926-904F-4228-BF3D-83352DE8A7FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFD3B926-904F-4228-BF3D-83352DE8A7FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFD3B926-904F-4228-BF3D-83352DE8A7FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8E48058D-329D-4181-805E-2C157735A800}
 	EndGlobalSection
 EndGlobal

@@ -5,8 +5,6 @@ namespace DelimitedStringParser
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true)]
     public class FieldIdAttribute : Attribute
     {
-        private static readonly FieldIdAttribute Default = new FieldIdAttribute(-1, -1);
-
         private readonly int version;
         private readonly int index;
 
@@ -61,13 +59,6 @@ namespace DelimitedStringParser
         public override int GetHashCode()
         {
             return new { this.Version, this.Index }.GetHashCode();
-        }
-
-        /// <summary>Determines if this attribute is the default.</summary>
-        /// <returns>true if the attribute is the default value for this attribute class; otherwise, false.</returns>
-        public override bool IsDefaultAttribute()
-        {
-            return this.Equals(Default);
         }
     }
 }

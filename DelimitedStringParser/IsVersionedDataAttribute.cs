@@ -5,8 +5,6 @@ namespace DelimitedStringParser
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public class IsVersionedDataAttribute : Attribute
     {
-        private static readonly IsVersionedDataAttribute Default = new IsVersionedDataAttribute(false);
-
         private readonly bool isVersionedData;
 
         /// <summary>
@@ -52,13 +50,6 @@ namespace DelimitedStringParser
         public override int GetHashCode()
         {
             return this.IsVersionedData.GetHashCode();
-        }
-
-        /// <summary>Determines if this attribute is the default.</summary>
-        /// <returns>true if the attribute is the default value for this attribute class; otherwise, false.</returns>
-        public override bool IsDefaultAttribute()
-        {
-            return this.Equals(Default);
         }
     }
 }
