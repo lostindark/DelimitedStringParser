@@ -5,7 +5,7 @@ An utility class that converts a delimited string into C# objects. It parser sup
 It requires custom attributes on the class definition.
 
 ## Why reinventing the wheels?
-There are nice libaries for reading CSV files (E.g. [A Fast CSV Reader](http://www.codeproject.com/Articles/9258/A-Fast-CSV-Reader), [File Helpers](http://www.filehelpers.net/)). If your purpose is to read/write CSV like files, please go with those libraries.
+There are nice libaries for reading CSV files (E.g. [CsvHelper](https://github.com/JoshClose/CsvHelper), [A Fast CSV Reader](http://www.codeproject.com/Articles/9258/A-Fast-CSV-Reader), [File Helpers](http://www.filehelpers.net/)). If your purpose is to read/write CSV like files, please go with those libraries.
 This library is created to support the following special requirements:
 * You can only access one record as string each time, not entire file.
 * Need to support versioned data. See example below.
