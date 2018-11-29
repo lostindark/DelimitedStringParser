@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bond.Core.CSharp" Version="7.0.1" />
+    <PackageReference Include="Bond.Core.CSharp" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
