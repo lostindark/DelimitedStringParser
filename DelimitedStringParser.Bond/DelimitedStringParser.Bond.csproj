@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net462;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bond.Core.CSharp" Version="8.0.0" />
+    <PackageReference Include="Bond.Core.CSharp" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup>
